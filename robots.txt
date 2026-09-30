@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /board/
+Disallow: /tools/
+
+Sitemap: https://atsociety.org/sitemap.xml

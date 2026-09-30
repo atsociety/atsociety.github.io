@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board Manual — Edit &amp; Change Password</title>
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    :root { --blue:#0039A6; --deep:#001F5C; --pale:#EDF3FC; --border:#DDE6F4; --ink:#101F3C; --muted:#52627E; }
+    * { box-sizing: border-box; }
+    body { font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); background:#F6F9FE; margin:0; line-height:1.55; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 40px 20px 90px; }
+    h1 { color: var(--blue); letter-spacing:-0.015em; }
+    .step { background:#fff; border:1px solid var(--border); border-radius:14px; padding:26px 28px; margin-bottom:20px; }
+    .step h2 { margin-top:0; font-size:1.12rem; }
+    .step h2 .n { display:inline-flex; width:28px; height:28px; border-radius:50%; background:var(--blue); color:#fff; align-items:center; justify-content:center; font-size:0.9rem; margin-right:10px; }
+    .muted { color: var(--muted); font-size: 0.93rem; }
+    input[type=password], input[type=text] { width:100%; max-width:380px; padding:11px 13px; border:1.5px solid #8FA6C9; border-radius:9px; font-size:1rem; font-family:inherit; }
+    input:focus { border-color: var(--blue); }
+    label { display:block; font-weight:600; font-size:0.9rem; margin:14px 0 6px; }
+    button { background:var(--blue); color:#fff; border:none; border-radius:9px; padding:11px 20px; font-size:0.95rem; font-weight:600; cursor:pointer; font-family:inherit; margin-top:14px; }
+    button:hover { background:var(--deep); }
+    button.secondary { background:#fff; color:var(--blue); border:2px solid var(--blue); }
+    .ok { color:#0B7A3B; font-weight:600; font-size:0.92rem; }
+    .err { color:#B3261E; font-weight:600; font-size:0.92rem; }
+    .status { margin-top:10px; min-height:1.3em; }
+    #editor { border:1.5px solid var(--border); border-radius:10px; background:#fff; padding:22px 26px; margin-top:14px; min-height:200px; max-height:520px; overflow:auto; }
+    #editor:focus { outline:2px solid var(--blue); }
+    #editor h2 { color:var(--blue); border-bottom:2px solid var(--pale); padding-bottom:6px; }
+    #editor table { border-collapse:collapse; width:100%; font-size:0.9rem; }
+    #editor th, #editor td { border:1px solid var(--border); padding:7px 10px; text-align:left; }
+    #editor th { background:var(--pale); }
+    .notice { background:#FFF8E1; border:1px solid #E6C56A; border-radius:10px; padding:12px 16px; font-size:0.9rem; margin:14px 0; }
+    .hidden { display:none; }
+    ol li { margin-bottom:8px; }
+    code { background:var(--pale); padding:2px 6px; border-radius:5px; font-size:0.88em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Board manual — edit content or change the password</h1>
+    <p class="muted">This tool updates the password-protected board page without any coding. It runs entirely in your browser — nothing you type is sent anywhere. You'll need the current board password.</p>
+
+    <div class="step">
+      <h2><span class="n">1</span>Load the current board page file</h2>
+      <p class="muted">Get the file <code>board/index.html</code> from the club's GitHub repository: open the repo → <code>board</code> folder → <code>index.html</code> → the <strong>Download raw file</strong> button (top right of the file view). Then choose it here. <em>No access to the club's GitHub yet? Ask the President to add you — it takes a minute.</em></p>
+      <input type="file" id="fileInput" accept=".html,.htm,text/html">
+      <div class="status" id="fileStatus" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="step">
+      <h2><span class="n">2</span>Unlock it</h2>
+      <label for="curPw">Current board password</label>
+      <input type="password" id="curPw" autocomplete="off">
+      <br><button id="unlockBtn" type="button">Unlock</button>
+      <div class="status" id="unlockStatus" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="step hidden" id="editStep">
+      <h2><span class="n">3</span>Edit the manual (optional)</h2>
+      <p class="muted">Click into the text below and edit it like a document. Keep the section headings — they become the page's menu. If you only want to change the password, leave the text as it is.</p>
+      <div id="editor" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Manual content"></div>
+    </div>
+
+    <div class="step hidden" id="pwStep">
+      <h2><span class="n">4</span>Set the password</h2>
+      <p class="muted">Leave both boxes empty to keep the current password. At handover each year, set a fresh one here.</p>
+      <label for="newPw">New password</label>
+      <input type="password" id="newPw" autocomplete="new-password">
+      <label for="newPw2">Repeat new password</label>
+      <input type="password" id="newPw2" autocomplete="new-password">
+    </div>
+
+    <div class="step hidden" id="genStep">
+      <h2><span class="n">5</span>Generate the updated file</h2>
+      <p class="muted">Relax — this only downloads a file to your computer. Nothing on the live site changes until you upload it in the next step, and even then GitHub keeps every old version under the file's <strong>History</strong>, so any mistake can be undone.</p>
+      <button id="genBtn" type="button">Generate &amp; download index.html</button>
+      <div class="status" id="genStatus" role="status" aria-live="polite"></div>
+      <div class="notice hidden" id="afterNotice">
+        <strong>Last step — put the new file on the site:</strong>
+        <ol>
+          <li>Open the club's GitHub repository and go into the <code>board</code> folder. <strong>Important:</strong> the address bar must end in <code>/board</code> before you upload — uploading this file at the top level of the repository would replace the site's homepage, because both files are named <code>index.html</code>.</li>
+          <li>Open <code>index.html</code> → click the pencil (Edit) → select everything and delete it.</li>
+          <li>Open the file you just downloaded in a text editor (Notepad / TextEdit), select all, copy, and paste it in. <em>Or</em>: in the <code>board</code> folder choose <strong>Add file → Upload files</strong> and upload the download — it replaces the old one because the name matches.</li>
+          <li>Click <strong>Commit changes</strong>. The live site updates in about a minute.</li>
+          <li>If you changed the password, share the new one with the board privately (not in writing on the site or repo).</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+    const ITER = 310000;
+    let fileText = null;
+    let currentPw = null;
+
+    const $ = (id) => document.getElementById(id);
+    const enc = new TextEncoder();
+    const b64ToBytes = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const bytesToB64 = (bytes) => {
+      let out = "";
+      for (let i = 0; i < bytes.length; i += 0x8000) {
+        out += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      }
+      return btoa(out);
+    };
+
+    function getBlob(text) {
+      const m = text.match(/\/\*ENC-START\*\/(.*?)\/\*ENC-END\*\//s);
+      if (!m) return null;
+      try {
+        const b = JSON.parse(m[1]);
+        if (!b || typeof b !== "object" || typeof b.s !== "string" || typeof b.i !== "string" || typeof b.c !== "string" || !b.c.length) return null;
+        return b;
+      } catch (e) { return null; }
+    }
+
+    async function deriveKey(password, salt, usages) {
+      const km = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+      return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: ITER, hash: "SHA-256" },
+        km, { name: "AES-GCM", length: 256 }, false, usages);
+    }
+
+    $("fileInput").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0];
+      const st = $("fileStatus");
+      if (!f) return;
+      fileText = await f.text();
+      if (getBlob(fileText)) {
+        st.innerHTML = '<span class="ok">✓ File loaded — it contains the protected manual.</span>';
+      } else {
+        fileText = null;
+        st.innerHTML = '<span class="err">That doesn\'t look like the board page file. Make sure you downloaded board/index.html.</span>';
+      }
+    });
+
+    $("unlockBtn").addEventListener("click", async () => {
+      const st = $("unlockStatus");
+      if (!fileText) { st.innerHTML = '<span class="err">Load the file in step 1 first.</span>'; return; }
+      const pw = $("curPw").value;
+      if (!pw) { st.innerHTML = '<span class="err">Enter the current password.</span>'; return; }
+      const blob = getBlob(fileText);
+      try {
+        const key = await deriveKey(pw, b64ToBytes(blob.s), ["decrypt"]);
+        const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(blob.i) }, key, b64ToBytes(blob.c));
+        $("editor").innerHTML = new TextDecoder().decode(plain);
+        currentPw = pw;
+        st.innerHTML = '<span class="ok">✓ Unlocked.</span>';
+        $("editStep").classList.remove("hidden");
+        $("pwStep").classList.remove("hidden");
+        $("genStep").classList.remove("hidden");
+      } catch (e) {
+        st.innerHTML = '<span class="err">Wrong password (or the file is damaged). Try again.</span>';
+      }
+    });
+
+    $("genBtn").addEventListener("click", async () => {
+      const st = $("genStatus");
+      st.textContent = "";
+      try {
+      if (!fileText || currentPw === null) { st.innerHTML = '<span class="err">Complete steps 1 and 2 first.</span>'; return; }
+
+      const p1 = $("newPw").value, p2 = $("newPw2").value;
+      if (p1 !== p2) { st.innerHTML = '<span class="err">The two password boxes don\'t match.</span>'; return; }
+      if (p1 && p1.length < 8) { st.innerHTML = '<span class="err">Use at least 8 characters.</span>'; return; }
+      const password = p1 || currentPw;
+
+      const content = $("editor").innerHTML.trim();
+      if (!content) { st.innerHTML = '<span class="err">The manual text is empty — that\'s probably a mistake.</span>'; return; }
+
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveKey(password, salt, ["encrypt"]);
+      const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(content)));
+
+      const blob = JSON.stringify({ s: bytesToB64(salt), i: bytesToB64(iv), c: bytesToB64(ct) });
+      const newText = fileText.replace(/\/\*ENC-START\*\/(.*?)\/\*ENC-END\*\//s, "/*ENC-START*/" + blob + "/*ENC-END*/");
+
+      const dl = new Blob([newText], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(dl);
+      a.download = "index.html";
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+      st.innerHTML = '<span class="ok">✓ Downloaded. Now follow the last step below.</span>' + (p1 ? ' <span class="ok">Password changed.</span>' : '');
+      $("afterNotice").classList.remove("hidden");
+      } catch (err) {
+        st.innerHTML = '<span class="err">Something went wrong: ' + String(err && err.message || err).replace(/</g, "&lt;") + '. Nothing was changed — try again.</span>';
+      }
+    });
+  </script>
+</body>
+</html>
